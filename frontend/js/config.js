@@ -1,5 +1,5 @@
 const CONFIG = {
-  API_BASE_URL: "http://localhost:49502",
+API_BASE_URL: "https://portfolio-l2m4.onrender.com",
 
   OWNER: {
     name:     "Hemanth Kumar",        // ← your real name

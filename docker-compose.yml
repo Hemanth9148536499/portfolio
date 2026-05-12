@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: portfolio_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE:      portfolio_db
+      MYSQL_USER:          portfolio_user
+      MYSQL_PASSWORD:      YourStrongPassword123!
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend/PortfolioAPI
+      dockerfile: Dockerfile
+    container_name: portfolio_api
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: >
+        Server=mysql;Port=3306;Database=portfolio_db;
+        User=portfolio_user;Password=YourStrongPassword123!;
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:5000
+    ports:
+      - "5000:5000"
+
+volumes:
+  mysql_data:
